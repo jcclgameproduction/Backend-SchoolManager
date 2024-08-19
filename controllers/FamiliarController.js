@@ -2,19 +2,19 @@ const Familiar = require("../models/Familiar");
 const Student = require("../models/Student");
 const sequelize = require("../db/conn");
 const { Op } = require('sequelize');
+const CatchStudent = require("../models/CatchStudent");
 
 module.exports = class FamiliarController{
     static async register(req, res){
         try{
             const name = req.body.name;
-            console.log("\n\n entrouu\n\n")  
             const profession = req.body.profession;
             const cpf = req.body.cpf;
             const email = req.body.email;
             const phone = req.body.phone;            
             await Familiar.create({name, profession, cpf, email, phone});  
-            console.log("\n\n cadastrado")          
-            return res.status(201).send("Familiar criado com sucesso");
+            
+            return res.status(201).json({ message: "Familiar criado com sucesso" });
         } catch(error){
             console.error(error);
             return res.status(500).send("Erro interno do servidor");
@@ -61,7 +61,7 @@ module.exports = class FamiliarController{
             }
             await Familiar.update({ name, profession, cpf, email, phone }, { where:{id} });
 
-            return res.status(201).send("Familiar atualizado com sucesso");
+            return res.status(201).json({ message: "Familiar atualizado com sucesso" });
         } catch(error){
             console.error(error);
             return res.status(500).send("Erro interno do servidor");
@@ -96,11 +96,13 @@ module.exports = class FamiliarController{
                 { where: { idEmergencyContact: id }, transaction: t }
             );
 
+            await CatchStudent.destroy({where: {idFamiliar: id}, transaction: t})
+
             await Familiar.destroy({ where: { id }, transaction: t });
 
             await t.commit();
 
-            return res.status(200).send("Familiar deletado com sucesso");
+            return res.status(200).json({ message: "Familiar deletado com sucesso" });
         } catch (error) {
             await t.rollback();
             console.error(error);

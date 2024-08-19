@@ -66,4 +66,3 @@ router.get("/getUserOffice/:idUser", UserOfficeController.getUserOffice);
 router.get("/getOffices", OfficeController.getAllOffices);
 
 module.exports = router;
-//--

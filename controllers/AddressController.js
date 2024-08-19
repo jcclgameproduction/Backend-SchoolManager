@@ -19,7 +19,7 @@ module.exports = class AddressController{
                 await Student.update({idAddress: address.id}, {where: {enrollment: enrollment}})
             }
 
-            return res.status(201).send("Endereço criado com sucesso");
+            return res.status(201).json({ message: "Endereço criado com sucesso" })
         } catch(error){
             console.error(error);
             return res.status(500).send("Erro interno do servidor");
@@ -61,7 +61,7 @@ module.exports = class AddressController{
 
             await address.save();
 
-            return res.status(200).send("Endereço atualizado com sucesso");
+            return res.status(200).json({ message: "Endereço atualizado com sucesso" });
         } catch(error){
             console.error(error);
             return res.status(500).send("Erro interno do servidor");
@@ -83,7 +83,8 @@ module.exports = class AddressController{
             }
 
             await address.destroy();
-            return res.status(200).send("Endereço deletado com sucesso");
+            
+            return res.status(200).json({ message: "Endereço deletado com sucesso" });
         } catch(error){
             console.error(error);
             return res.status(500).send("Erro interno do servidor");

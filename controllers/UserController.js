@@ -186,7 +186,7 @@ module.exports = class UserControler {
             // Deletar o usuário
             await user.destroy();
 
-            return res.status(200).send("Usuário deletado com sucesso");
+            return res.status(200).json({ message: "Usuário deletado com sucesso" });
         } catch (error) {
             // Lidar com erros inesperados
             console.error(error);
@@ -305,8 +305,7 @@ module.exports = class UserControler {
 
             await User.update({ name, cpf, email }, { where:{id} })
             
-            
-            return res.status(200).send("Usuário atualizado com sucesso");
+            return res.status(200).json({ message: "Usuário atualizado com sucesso" });
         } catch (error) {
             console.error(error);
             return res.status(500).send("Erro interno do servidor");

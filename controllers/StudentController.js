@@ -46,7 +46,7 @@ module.exports = class StudentController{
             
             await Student.create({enrollment, name, birthDate, naturalness, monthlyPayment, healthCare, idMother, idFather, idResponsible, idEmergencyContact, idAddress});
 
-            return res.status(201).send("Aluno criado com sucesso");
+            return res.status(201).json({ message: "Aluno criado com sucesso" });
         } catch(error){
             console.error(error);
             return res.status(500).send("Erro interno do servidor");
@@ -85,7 +85,7 @@ module.exports = class StudentController{
 
         await student.save();
 
-        return res.status(200).send("Aluno atualizado com sucesso");
+        return res.status(200).json({ message: "Aluno atualizado com sucesso"});
       } catch(error){
         console.error(error);
         return res.status(500).send("Erro interno do servidor");
@@ -109,7 +109,7 @@ module.exports = class StudentController{
 
         await student.destroy();
 
-        return res.status(200).send("Aluno deletado com sucesso");
+        return res.status(200).json({ message: "Aluno deletado com sucesso" });
       } catch(error){
         console.error(error);
         return res.status(500).send("Erro interno do servidor");

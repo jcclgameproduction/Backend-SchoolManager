@@ -12,7 +12,7 @@ module.exports = class UserOfficeController{
             if(res === null){
                 return true;
             }else{
-                return res.status(201).send("Cargo registrado com sucesso");
+                return res.status(201).json({ message: "Cargo registrado com sucesso" });
             }
         } catch (error) {
             console.error(error);
@@ -30,7 +30,7 @@ module.exports = class UserOfficeController{
         
         try {
             const userOffice = await UserOffice.destroy({where: {idUser, idOffice}});
-            return res.status(200).send("Usuário deletado do Cargo com sucesso");
+            return res.status(200).json({ message: "Usuário deletado do Cargo com sucesso" });
         } catch (error) {
             console.error(error);
             return res.status(500).send("Erro interno do servidor");
