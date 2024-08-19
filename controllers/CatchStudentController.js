@@ -8,7 +8,7 @@ module.exports = class CatchStudentController {
             
             await CatchStudent.findOrCreate({ where: { idStudent: enrollment,  idFamiliar} });
             
-            return res.status(201).send("Sucesso!");
+            return res.status(200).json({ message: "Sucesso!" });
         } catch (err) {
             console.error(err);
             return res.status(400).send("Erro");
@@ -24,7 +24,7 @@ module.exports = class CatchStudentController {
                 await CatchStudent.destroy({ where: { idStudent: enrollment, idFamiliar } });
             }
             
-            return res.status(200).send("Sucesso!");
+            return res.status(200).json({ message: "Sucesso!" });
         } catch (err) {
             console.error(err);
             return res.status(400).send("Erro");
@@ -43,7 +43,7 @@ module.exports = class CatchStudentController {
             });
             
             await Promise.all(promises)
-
+            console.log(familiarsList)
             return res.status(200).json({familiarsList});
             
         } catch(error){
