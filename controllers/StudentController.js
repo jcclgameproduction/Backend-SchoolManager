@@ -49,7 +49,7 @@ module.exports = class StudentController{
             return res.status(201).json({ message: "Aluno criado com sucesso" });
         } catch(error){
             console.error(error);
-            return res.status(500).send("Erro interno do servidor");
+            return res.status(500).send({error: "Erro interno do servidor. Tente novamente mais tarde."});
         }
     }
     
@@ -69,7 +69,7 @@ module.exports = class StudentController{
 
         const student = await Student.findOne({where: {enrollment: enrollment}});
         if(!student){
-          return res.status(404).send("Aluno não encontrado");
+          return res.status(404).send({error: "Aluno não encontrado"});
         }
 
         student.name = name || student.name;
@@ -88,7 +88,7 @@ module.exports = class StudentController{
         return res.status(200).json({ message: "Aluno atualizado com sucesso"});
       } catch(error){
         console.error(error);
-        return res.status(500).send("Erro interno do servidor");
+        return res.status(500).send({error: "Erro interno do servidor"});
       }
     }
 
@@ -98,7 +98,7 @@ module.exports = class StudentController{
 
         const student = await Student.findOne({where: {enrollment: enrollment}});
         if(!student){
-          return res.status(404).send("Aluno não encontrado");
+          return res.status(404).send({error: "Aluno não encontrado"});
         }
 
         if(student.idAddress){
@@ -112,7 +112,7 @@ module.exports = class StudentController{
         return res.status(200).json({ message: "Aluno deletado com sucesso" });
       } catch(error){
         console.error(error);
-        return res.status(500).send("Erro interno do servidor");
+        return res.status(500).send({error: "Erro interno do servidor"});
       }
     }
     
@@ -127,7 +127,7 @@ module.exports = class StudentController{
         return res.status(200).json({student});
       } catch(error){
         console.error(error);
-        return res.status(500).send("Erro interno do servidor");
+        return res.status(500).send({error: "Erro interno do servidor"});
       }
     }
 
@@ -144,7 +144,7 @@ module.exports = class StudentController{
         return res.status(200).json({studentsList});
       } catch(error) {
         console.log(error);
-        return res.status(500).send("Erro interno do servidor");
+        return res.status(500).send({error: "Erro interno do servidor"});
       }
     }
 
@@ -171,7 +171,7 @@ module.exports = class StudentController{
           return res.status(200).json({student});
       } catch(error){
           console.error(error);
-          return res.status(500).send("Erro interno do servidor");
+          return res.status(500).send({error: "Erro interno do servidor"});
       }
   }
 }

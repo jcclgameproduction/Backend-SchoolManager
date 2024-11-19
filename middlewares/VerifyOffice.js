@@ -16,14 +16,14 @@ function verifyOffice(officeList) {
             const hasMatchingOffice = officeList.some(office => officeNames.includes(office));
 
             if (!hasMatchingOffice) {
-                return res.status(403).send("Você não tem permissão para acessar este recurso.");
+                return res.status(403).send({error: "Você não tem permissão para acessar este recurso."});
             }
 
             // Se houver correspondência, avança para o próximo middleware
             next();
         } catch (error) {
             console.error(error);
-            return res.status(500).send("Erro interno do servidor");
+            return res.status(500).send({error: "Erro interno do servidor"});
         }
     };
 }
