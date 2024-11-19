@@ -11,7 +11,7 @@ module.exports = class CatchStudentController {
             return res.status(200).json({ message: "Sucesso!" });
         } catch (err) {
             console.error(err);
-            return res.status(400).send("Erro");
+            return res.status(400).send({error: "Erro interno do servidor. Tente novamente mais tarde."});
         }
     }    
 
@@ -27,7 +27,7 @@ module.exports = class CatchStudentController {
             return res.status(200).json({ message: "Sucesso!" });
         } catch (err) {
             console.error(err);
-            return res.status(400).send("Erro");
+            return res.status(400).send({error: "Erro interno do servidor. Tente novamente mais tarde."});
         }
     }
 
@@ -43,12 +43,11 @@ module.exports = class CatchStudentController {
             });
             
             await Promise.all(promises)
-            console.log(familiarsList)
             return res.status(200).json({familiarsList});
             
         } catch(error){
             console.error(error);
-            return res.status(400).send("Erro");
+            return res.status(400).send({error: "Erro"});
         }
     }
     

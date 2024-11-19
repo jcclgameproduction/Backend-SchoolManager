@@ -5,6 +5,8 @@ const nodemailer = require('nodemailer');
 const InvalidToken = require("../models/InvalidToken");
 const UserOfficeController = require("./UserOfficeController");
 const { Op } = require('sequelize');
+const sequelize = require("../db/conn");
+const UserOffice = require("../models/UserOffice");
 
 module.exports = class UserControler {
     static async login(req, res) {
@@ -46,7 +48,6 @@ module.exports = class UserControler {
     static async changePassword(req, res) {
         const newPassword = req.body.newpassword;
         const email = req.body.email;
-
         try {
             // Buscar o usuário no banco de dados
             const user = await User.findOne({ where: { email: email } });
@@ -58,7 +59,7 @@ module.exports = class UserControler {
 
             // Gerar o hash da nova senha
             const hashedPassword = await bcrypt.hash(newPassword, 10);
-
+            
             // Atualizar a senha do usuário
             user.password = hashedPassword;
             await user.save();
@@ -89,7 +90,7 @@ module.exports = class UserControler {
             }
             if (!user) {
                 // Se o usuário não for encontrado, enviar uma resposta de erro 404
-                return res.status(404).send("Usuário não encontrado");
+                return res.status(404).send({error: "Usuário não encontrado"});
             }
 
             // Gerar o JWT com o email do usuário e definir a expiração para 1 hora
@@ -118,15 +119,15 @@ module.exports = class UserControler {
             transporter.sendMail(mailOptions, function(error, info){
                 if (error) {
                     console.error(error);
-                    return res.status(500).send("Erro ao enviar o email");
+                    return res.status(500).send({error: "Erro ao enviar o email"});
                 } else {
-                    return res.status(200).send("Email enviado com sucesso");
+                    return res.status(200).send({error: "Email enviado com sucesso"});
                 }
             });
         } catch (error) {
             // Lidar com erros inesperados
             console.error(error);
-            return res.status(500).send("Erro interno do servidor");
+            return res.status(500).send({error: "Erro interno do servidor"});
         }
     }
 
@@ -140,7 +141,7 @@ module.exports = class UserControler {
 
             if (existingUser) {
                 // Se o usuário já existir, enviar uma resposta de erro 409
-                return res.status(409).send("Usuário com este email já existe");
+                return res.status(409).json({ error: "Usuário com este email já existe" });
             }
 
             // Gerar uma senha aleatória
@@ -158,9 +159,8 @@ module.exports = class UserControler {
                 password: hashedPassword
             });
             req.body.idUser = newUser.id;
-            console.log(newUser.id)
             if(await UserOfficeController.register(req, null) === false){
-                throw new Error("Erro ao registrar o cargo do usuário");
+                throw new Error({error: "Erro ao registrar o cargo do usuário"});
             }
             
             return res.status(200).json({ userId: newUser.id });
@@ -168,29 +168,33 @@ module.exports = class UserControler {
             // Lidar com erros inesperados
             newUser.destroy();
             console.error(error);
-            return res.status(500).send("Erro interno do servidor");
+            return res.status(500).send({error: "Erro interno do servidor"});
         }
     }
 
     static async deleteUser(req, res) {
-        const userId = req.body.id;
+        const transaction = await sequelize.transaction();
         try {
+            const id = req.body.id;
             // Verificar se o usuário existe no banco de dados
-            const user = await User.findByPk(userId);
+            const user = await User.findOne({ raw: true, where: { id } });
 
             if (!user) {
-                // Se o usuário não for encontrado, enviar uma resposta de erro 404
-                return res.status(404).send("Usuário não encontrado");
+                await transaction.rollback();
+                return res.status(404).send({error: "Usuário não encontrado"});
             }
 
-            // Deletar o usuário
-            await user.destroy();
+            await UserOffice.destroy({ where: { idUser: id }, transaction: transaction });
+
+            await User.destroy({ where: { id }, transaction: transaction });
+
+            await transaction.commit();
 
             return res.status(200).json({ message: "Usuário deletado com sucesso" });
         } catch (error) {
-            // Lidar com erros inesperados
+            await transaction.rollback();
             console.error(error);
-            return res.status(500).send("Erro interno do servidor");
+            return res.status(500).send({error: "Erro interno do servidor"});
         }
     }
     
@@ -298,9 +302,15 @@ module.exports = class UserControler {
         try {
             // Verificar se o usuário já existe no banco de dados
             const existingUser = await User.findOne({ where: { id: id } });
+            const valideEmail = await User.findOne({ where: { email: email} });
+
+            if (valideEmail.id != id) {
+                // Se o usuário já existir, enviar uma resposta de erro 409
+                return res.status(409).json({ error: "Usuário com este email já existe" });
+            }
 
             if (!existingUser) {
-                return res.status(400).send("Usuário não encontrado");
+                return res.status(400).send({error: "Usuário não encontrado"});
             }
 
             await User.update({ name, cpf, email }, { where:{id} })
@@ -308,7 +318,7 @@ module.exports = class UserControler {
             return res.status(200).json({ message: "Usuário atualizado com sucesso" });
         } catch (error) {
             console.error(error);
-            return res.status(500).send("Erro interno do servidor");
+            return res.status(500).send({error: "Erro interno do servidor"});
         }
     }
 

@@ -17,7 +17,7 @@ module.exports = class FamiliarController{
             return res.status(201).json({ message: "Familiar criado com sucesso" });
         } catch(error){
             console.error(error);
-            return res.status(500).send("Erro interno do servidor");
+            return res.status(500).send({error: "Erro interno do servidor. Tente novamente mais tarde."});
         }
         
     }
@@ -33,7 +33,7 @@ module.exports = class FamiliarController{
             return res.status(200).json({familiars});
         } catch(error){
             console.error(error);
-            return res.status(500).send("Erro interno do servidor");
+            return res.status(500).send({error: "Erro interno do servidor"});
         }
     }
 
@@ -47,7 +47,7 @@ module.exports = class FamiliarController{
             return res.status(200).json({familiar});
         } catch(error){
             console.error(error);
-            return res.status(500).send("Erro interno do servidor");
+            return res.status(500).send({error: "Erro interno do servidor"});
         }
     }
 
@@ -57,56 +57,56 @@ module.exports = class FamiliarController{
             const {id, name, profession, cpf, email,  phone} = req.body;             
             const familiar = await Familiar.findOne({raw:true, where: {id}});
             if(!familiar){
-                return res.status(404).json({ errors: [{msg: "Familiar não encontrado!"}] });
+                return res.status(404).json({error: "Familiar não encontrado!"});
             }
             await Familiar.update({ name, profession, cpf, email, phone }, { where:{id} });
 
             return res.status(201).json({ message: "Familiar atualizado com sucesso" });
         } catch(error){
             console.error(error);
-            return res.status(500).send("Erro interno do servidor");
+            return res.status(500).send({error: "Erro interno do servidor"});
         }
     }
 
     static async delete(req, res){
-        const t = await sequelize.transaction();
+        const transaction = await sequelize.transaction();
         try {
             const id = req.body.id;
             const familiar = await Familiar.findOne({ raw: true, where: { id } });
 
             if (!familiar) {
-                await t.rollback();
+                await transaction.rollback();
                 return res.status(404).json({ errors: [{ msg: "Familiar não encontrado!" }] });
             }
 
             await Student.update(
                 { idMother: null },
-                { where: { idMother: id }, transaction: t }
+                { where: { idMother: id }, transaction: transaction }
             );
             await Student.update(
                 { idFather: null },
-                { where: { idFather: id }, transaction: t }
+                { where: { idFather: id }, transaction: transaction }
             );
             await Student.update(
                 { idResponsible: null },
-                { where: { idResponsible: id }, transaction: t }
+                { where: { idResponsible: id }, transaction: transaction }
             );
             await Student.update(
                 { idEmergencyContact: null },
-                { where: { idEmergencyContact: id }, transaction: t }
+                { where: { idEmergencyContact: id }, transaction: transaction }
             );
 
-            await CatchStudent.destroy({where: {idFamiliar: id}, transaction: t})
+            await CatchStudent.destroy({where: {idFamiliar: id}, transaction: transaction})
 
-            await Familiar.destroy({ where: { id }, transaction: t });
+            await Familiar.destroy({ where: { id }, transaction: transaction });
 
-            await t.commit();
+            await transaction.commit();
 
             return res.status(200).json({ message: "Familiar deletado com sucesso" });
         } catch (error) {
-            await t.rollback();
+            await transaction.rollback();
             console.error(error);
-            return res.status(500).send("Erro interno do servidor");
+            return res.status(500).send({error: "Erro interno do servidor"});
         }
     }
 
@@ -133,7 +133,7 @@ module.exports = class FamiliarController{
             return res.status(200).json({familiar});
         } catch(error){
             console.error(error);
-            return res.status(500).send("Erro interno do servidor");
+            return res.status(500).send({error: "Erro interno do servidor"});
         }
     }
 }

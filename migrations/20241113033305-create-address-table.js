@@ -5,7 +5,7 @@ module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('Address', {
     id: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.DataTypes.INTEGER,
       autoIncrement: true,
       allowNull: false,
       primaryKey: true
